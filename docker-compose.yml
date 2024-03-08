@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./
+      dockerfile: backend/docker/Dockerfile
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./backend:/app/backend
+      - /app/backend/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=4000
+      - CHOKIDAR_USEPOLLING=1
+    command: "/bin/sh /app/backend/scripts/entrypoint.sh"
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./
+      dockerfile: app/docker/Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./app:/app/frontend
+#      - /app/frontend/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - CHOKIDAR_USEPOLLING=1
+    command: "/bin/sh /app/frontend/scripts/entrypoint.sh"
+
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: your_username
+      POSTGRES_PASSWORD: your_password
+      POSTGRES_DB: your_database_name
+    ports:
+      - "5432:5432"
